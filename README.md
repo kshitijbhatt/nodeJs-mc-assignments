@@ -13,6 +13,8 @@ When someone posts anything to the route /hello, you should return a welcome mes
 3. Open the assignment-1 folder
 4. Run command *node index.js*
 
+### Assignment #2  
+
 **How to use the assignment-2**
 1. Open the assignments folder
 2. Open the assignment-2 folder
