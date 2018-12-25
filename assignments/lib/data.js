@@ -8,12 +8,13 @@ Library for storing and editing data
 // Dependencies
 const fs = require('fs');
 const path = require('path');
+const helpers = require('./helpers'); 
 
 // Container for the module (to be exported)
 const lib = {};
 
 // Base directory of the data folder
-lib.baseDir = path.join(__dirname,'/../.data/')
+lib.baseDir = path.join(__dirname,'/../../.data/')
 
 //Write data to a file
 lib.create = function(dir,file,data,callback){
@@ -30,7 +31,7 @@ lib.create = function(dir,file,data,callback){
                    fs.close(fileDescriptor,function(err){
                        if(!err){
                            callback(false);
-                       }else {
+                       } else {
                            callback('Error closing new file');
                        }
                    })
@@ -40,7 +41,7 @@ lib.create = function(dir,file,data,callback){
                }
            })
         }   else{
-            callback('Could not create new file, it may already exist');
+            callback('Could not create new file, it may already exist ', lib.baseDir);
         }     
     })
 
@@ -49,7 +50,12 @@ lib.create = function(dir,file,data,callback){
 // Read data from a file
 lib.read = function (dir,file,callback) {
     fs.readFile(lib.baseDir+dir+'/'+file+'.json','utf8',function(err,data){
-        callback(err,data);
+        if(!err && data){
+            const parseData = helpers.parseJsonToObject(data);
+            callback(false,parseData);
+        } else {
+            callback(err,data);
+        }
     })
 };
 

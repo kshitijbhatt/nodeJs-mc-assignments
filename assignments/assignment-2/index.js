@@ -16,6 +16,13 @@ const StringDecoder = require('string_decoder').StringDecoder;
 const config = require('../lib/config');
 const fs = require('fs'); //Require File system module 
 const handlers = require('../lib/handlers');
+const helpers = require('../lib/helpers');
+// const _data = require('../lib/data');
+
+// // @TODO Remode this
+// _data.create('test','newFile',{'foo':'bar'},function(err){
+//   console.log('This was the error ',err);
+// });
 
 // instanitating the HTTP server
 
@@ -85,10 +92,10 @@ httpsServer.listen(config.httpsPort, function () {
             // Construct data object to send to the handler
             const data = {
               'trimmedPath' : trimmedPath,
-              'querryStringObject' : queryStringObject,
+              'queryStringObject' : queryStringObject,
               'method' : method,
               'headers' : headers,
-              'payload' : buffer
+              'payload' : helpers.parseJsonToObject(buffer)
             };
 
             // Route the request to the handler specified in the router

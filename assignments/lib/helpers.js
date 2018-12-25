@@ -24,7 +24,7 @@ helpers.hash = function(str){
 };
 
 // Parse a json string to an object in all cases without throwing error 
-helpers.parseJsonToObject = function(err){
+helpers.parseJsonToObject = function(str){
     try{
         const obj = JSON.parse(str);
         return obj;
