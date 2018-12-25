@@ -17,7 +17,7 @@ When someone posts anything to the route /hello, you should return a welcome mes
 
 **How to use the assignment-2**
 1. Open the assignments folder
-2. Open the assignment-2 folder
+2. Open the assignment-2 folder (if you use command line you need to write folder name like assingment\-\2)
 3. Run command *node index.js*
    
 **Known Issue**
