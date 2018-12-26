@@ -42,8 +42,8 @@ handlers._users = {};
 handlers._users.post = function(data, callback){
 
     // Check if all required fields are filled out
-    var firstName = typeof(data.payload.firstName) == 'string' && data.payload.firstName.trim().length > 0 ? data.payload.firstName.trim() : false;
-    var lastName = typeof(data.payload.lastName) == 'string' && data.payload.lastName.trim().length > 0 ? data.payload.lastName.trim() : false;
+    const firstName = typeof(data.payload.firstName) == 'string' && data.payload.firstName.trim().length > 0 ? data.payload.firstName.trim() : false;
+    const lastName = typeof(data.payload.lastName) == 'string' && data.payload.lastName.trim().length > 0 ? data.payload.lastName.trim() : false;
     const phoneNumber = typeof(data.payload.phoneNumber) == 'string' && data.payload.phoneNumber.trim().length == 10 ? data.payload.phoneNumber.trim() : false;
     const password = typeof(data.payload.password) == 'string' && data.payload.password.trim().length > 0 ? data.payload.password.trim() : false;
     const tosAgreement = typeof(data.payload.tosAgreement) == 'boolean' && data.payload.tosAgreement == true ? true : false;
@@ -97,15 +97,15 @@ handlers._users.get = function(data, callback){
   // Check that the phone number is valid
   const phoneNumber = typeof(data.queryStringObject.phoneNumber) == 'string' && data.queryStringObject.phoneNumber.trim().length == 10 ? data.queryStringObject.phoneNumber.trim() : false;
   if(phoneNumber){
-    console.log(phoneNumber);
+    
     // Lookup the user
     _data.read('users',phoneNumber,function(err,data){
-      if(!err & data){
+      if(!err && data){
         // Remove the hashed password
         delete data.hashedPassword;
         callback(200, data);
       } else {
-        callback(404, err);
+        callback(404);
       }
 
     })
@@ -116,14 +116,85 @@ handlers._users.get = function(data, callback){
 
 
 // Users - put
+// Required data : phone
+// Option data : firstName, lastName, password (at least one is provided)
+// @TO-DO Authentication
 handlers._users.put = function(data, callback){
+  // Check for the required field
+  const phoneNumber = typeof(data.payload.phoneNumber) == 'string' && data.payload.phoneNumber.trim().length == 10 ? data.payload.phoneNumber.trim() : false;
+ 
+  // Check for the optional fields
+  const firstName = typeof(data.payload.firstName) == 'string' && data.payload.firstName.trim().length > 0 ? data.payload.firstName.trim() : false;
+  const lastName = typeof(data.payload.lastName) == 'string' && data.payload.lastName.trim().length > 0 ? data.payload.lastName.trim() : false;
+  const password = typeof(data.payload.password) == 'string' && data.payload.password.trim().length > 0 ? data.payload.password.trim() : false;
+  const tosAgreement = typeof(data.payload.tosAgreement) == 'boolean' && data.payload.tosAgreement == true ? true : false;
+
+  // Error if phone is invalid
+  if(phoneNumber){
+    if(firstName || lastName || password){
+      _data.read('users',phoneNumber,function(err,userData){
+        if(!err && userData){
+          // Update the field necessary
+          if(firstName){
+            userData.firstName = firstName;
+          }
+          if(lastName){
+            userData.lastName = lastName;
+          }
+          if(password){
+            userData.hashedPassword = helpers.hash(password);
+          }
+
+          // Store the new updates
+          _data.update('users',phoneNumber,userData,function (err) { 
+            if(!err){
+              callback(200, {'Success' : 'Updated Succesfully'})
+            } else {
+              console.log(err);
+              callback(500, {'Error': 'Internal Server Error'})
+            }
+           })
+          
+        }
+
+      });
+      
+    }
+    else {
+      callback (400, {'Error':'The specified user does not exist'})
+    }
+  } else {
+    callback(400, {'Error' : 'Missing required fields to update'});
+  }
+
 
 };
 
 
 // Users - delete
 handlers._users.delete = function(data, callback){
+  const phoneNumber = typeof(data.queryStringObject.phoneNumber) == 'string' && data.queryStringObject.phoneNumber.trim().length == 10 ? data.queryStringObject.phoneNumber.trim() : false;
+  if(phoneNumber){
+    
+    // Lookup the user
+    _data.read('users',phoneNumber,function(err,data){
+      if(!err && data){
+        // Remove the hashed password
+        _data.delete('users',phoneNumber,function(err){
+          if(!err){
+            callback(200,{'Success':'Deleted the user successfully'});
+          }else {
+            callback(400, {'Error':'Could not delete the user'});
+          }
+        });
+      } else {
+        callback(404,{'Error':'Could not find the user to delete'});
+      }
 
+    })
+  } else {
+    callback(400,{'Error' : 'Missing required field'});
+  }
 };
 
 // Define not found handler
